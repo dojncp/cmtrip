@@ -1,0 +1,86 @@
+############## Frame Base Configuration ##############
+sc2:
+  name: CMTRIP
+  version: 1.0.0
+  copyRightYear: 2025
+  profile: /projects/cmtrip/file_upload # The path would uploaded files be saved
+
+############## Spring Configuration ##############
+spring:
+  application:
+    name: cmtrip
+  datasource:
+    url: jdbc:mysql://localhost:3306/cmtrip?useUnicode=true&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 12345678
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      password:
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 100
+          max-idle: 10
+          min-idle: 2
+          max-wait: 3000
+  servlet:
+    multipart:
+      # Whether to enable multipart upload functionality 是否启用 multipart 上传功能
+      enabled: true
+      # Maximum size limit for a single file 单个文件的最大大小限制
+      max-file-size: 2GB
+      # Maximum total size limit for a single request (sum of all files) 单次请求的最大总大小限制（所有文件之和）
+      max-request-size: 2GB
+      # When the file size exceeds this threshold, it will be written to disk; otherwise, it will be stored in memory
+      # 文件大小超过该阈值时将写入磁盘，否则保存在内存中
+      file-size-threshold: 2GB
+
+############## MyBatis-plus Configuration ##############
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+############## Log Configuration ##############
+logging:
+  file:
+    name: /projects/java/cmtrip/logs/cm-trip.log # real path
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} {%thread} %-5level %logger{36} - %msg%n" # Customized file log pattern
+
+############## Server Configuration 服务器配置 ##############
+server:
+  port: 8081
+  error:
+    # Ensure that exception details are not suppressed 确保不屏蔽异常信息
+    include-message: always
+  tomcat:
+    uri-encoding: UTF-8
+    accept-count: 100
+    threads:
+      max: 800
+      min-spare: 100
+    max-swallow-size: -1
+    max-http-form-post-size: -1
+  address: 0.0.0.0
+
+############## Sa-Token Configuration Sa-Token 配置 (Documents: 文档: https://sa-token.cc) ##############
+sa-token:
+  # Token name (also used as the cookie name) token 名称（同时也是 cookie 名称）
+  token-name: satoken
+  # Token expiration time (in seconds). Default is 30 days; `-1` indicates permanent validity token 有效期（单位：秒） 默认30天，-1 代表永久有效
+  timeout: 2592000
+  # Minimum token activity interval (in seconds). If the token is inactive beyond this time, it will be frozen. Default `-1` means no limit and it will never be frozen token 最低活跃频率（单位：秒），如果 token 超过此时间没有访问系统就会被冻结，默认-1 代表不限制，永不冻结
+  active-timeout: -1
+  # Whether to allow the same account to log in from multiple locations simultaneously (`true` allows concurrent logins, `false` forces new login to invalidate the previous one) 是否允许同一账号多地同时登录 （为 true 时允许一起登录, 为 false 时新登录挤掉旧登录）
+  is-concurrent: true
+  # When multiple users log in to the same account, whether to share a single token (`true` means all logins share one token, `false` means a new token is created for each login) 在多人登录同一账号时，是否共用一个 token （为 true 时所有登录共用一个 token, 为 false 时每次登录新建一个 token）
+  is-share: true
+  # Token style (default options: `uuid`, `simple-uuid`, `random-32`, `random-64`, `random-128`, `tik`) token 风格（默认可取值：uuid、simple-uuid、random-32、random-64、random-128、tik）
+  token-style: simple-uuid
+  # Whether to output operation logs 是否输出操作日志
+  is-log: true
+

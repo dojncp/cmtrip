@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# IntelliJ IDEA
+.idea/
+
+# VSCode
+.vscode/
+
+# Java & Maven
+/target/
+/*.iml
+*.class
+*.log
+
+# Maven Wrapper files if not used
+#mvnw
+#mvnw.cmd
+#/.mvn/
+
+# Node.js
+node_modules/
+dist/
+.env
+
+# OS-specific
+Thumbs.db

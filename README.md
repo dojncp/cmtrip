@@ -18,6 +18,7 @@ An iOS version is under development.
 **(2) Authentication**  
 Users must register and log in to use the system. Password recovery and modification features are coming soon.  
 It uses **sa-token** (official docs: https://sa-token.cc/index.html) with a Role-User-Permission hierarchy to manage access. Developers can use annotations for flexible access control.
+The default top-privileged user is `superAdmin` with the password `123456`. This user cannot be modified or deleted.
 
 **(3) Core Features**  
 Each **trip** can contain multiple **actions**. Users can upload one image per trip or action. Future updates may include budget estimation via travel pass suggestions.
@@ -64,6 +65,7 @@ iOS版本正在开发中，敬请期待。
 **（2）用户登录及鉴权机制**  
 程序需注册并登录后使用。后续将添加“找回密码”和“修改密码”等功能。  
 采用 [sa-token](https://sa-token.cc/index.html) 框架，构建角色-用户-权限的三级结构，支持注解式鉴权，方便开发者使用。
+默认最高权限的用户名为 `superAdmin` ，相应的密码为 `123456` ，该用户禁止修改或删除。
 
 **（3）原始业务结构**  
 程序以“旅行（trip）”与“行程（action）”为两级结构，一次旅行可包含多个行程，每项都支持上传一张图片。未来版本可能支持旅行票据预算分析等功能。
@@ -109,6 +111,7 @@ Web uniquement : Java + Spring Boot + MyBatis Plus pour le backend ; Vue3 + JS p
 **(2) Authentification**  
 Inscription et connexion obligatoires. Fonctions “réinitialisation” et “modification du mot de passe” à venir.  
 Utilise [sa-token](https://sa-token.cc/index.html) pour gérer les rôles et permissions via annotations.
+L'utilisateur par défaut avec les privilèges les plus élevés est `superAdmin`, avec le mot de passe `123456`. Cet utilisateur ne peut pas être modifié ni supprimé.
 
 **(3) Fonctionnalités**  
 Une excursion (trip) peut contenir plusieurs actions. Chaque élément peut comporter une image. Les prochaines versions pourront proposer des calculs de budget basés sur les pass touristiques.
@@ -143,6 +146,7 @@ Web solamente: Java + Spring Boot + MyBatis Plus (backend), Vue3 + JS (frontend)
 **(2) Autenticación**  
 Requiere registro e inicio de sesión. Pronto incluirá recuperación de contraseña.  
 Basado en [sa-token](https://sa-token.cc/index.html) para permisos por roles.
+El usuario predeterminado con el mayor nivel de privilegios es `superAdmin` y su contraseña es `123456`. Este usuario no puede ser modificado ni eliminado.
 
 **(3) Funciones**  
 Un viaje puede tener varias acciones. Cada entrada puede tener una imagen. Futuras versiones incluirán cálculo de presupuesto.
@@ -174,6 +178,7 @@ Gracias a [irasutoya](https://www.irasutoya.com/) por los íconos.
 
 **(2) Аутентификация**  
 Регистрация и вход обязательны. Используется [sa-token](https://sa-token.cc/index.html).
+Пользователь с максимальными правами по умолчанию — `superAdmin`, пароль — `123456`. Этот пользователь не может быть изменён или удалён.
 
 **(3) Основной функционал**  
 Поездка (trip) содержит действия (action). Возможность загрузки изображений. Будущий функционал — расчёт бюджета.
@@ -200,6 +205,7 @@ Gracias a [irasutoya](https://www.irasutoya.com/) por los íconos.
 
 **(2) تسجيل الدخول**  
 يتطلب تسجيل الدخول. يستخدم [sa-token](https://sa-token.cc/index.html) للتحكم في الصلاحيات.
+اسم المستخدم ذو الصلاحيات الأعلى بشكل افتراضي هو `superAdmin` وكلمة المرور الخاصة به هي `123456`. لا يمكن تعديل هذا المستخدم أو حذفه.
 
 **(3) الميزات**  
 رحلة = trip، وكل رحلة تحتوي على عدة أنشطة = actions. يمكن رفع صورة لكل عنصر.
@@ -227,6 +233,7 @@ Gracias a [irasutoya](https://www.irasutoya.com/) por los íconos.
 
 **(2) 認証機構**  
 ログインが必要です。[sa-token](https://sa-token.cc/index.html) による権限管理。
+デフォルトで最高権限を持つユーザーは `superAdmin` で、パスワードは `123456` です。このユーザーは変更・削除できません。
 
 **(3) 機能**  
 旅行（trip）には複数の行動（action）を含めることができ、各項目に画像を添付可能。将来的には予算管理機能も追加予定。

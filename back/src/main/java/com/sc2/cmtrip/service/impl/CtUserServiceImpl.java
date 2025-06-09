@@ -8,16 +8,24 @@ import com.sc2.cmtrip.entity.*;
 import com.sc2.cmtrip.mapper.CtUserMapper;
 import com.sc2.cmtrip.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Permissions;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class CtUserServiceImpl extends ServiceImpl<CtUserMapper, CtUser> implements CtUserService {
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Autowired
     private CtUserMapper ctUserMapper;
@@ -67,6 +75,9 @@ public class CtUserServiceImpl extends ServiceImpl<CtUserMapper, CtUser> impleme
      */
     @Override
     public void registerUser(CtUser newUser) {
+        if (!isUserNameUnique(newUser.getUserName())) {
+            throw new RuntimeException("This username already exists!");
+        }
         String userName = newUser.getUserName();
         String password = newUser.getPassword();
         // Check whether the username is the disallowed **superAdmin** for registration
@@ -120,24 +131,51 @@ public class CtUserServiceImpl extends ServiceImpl<CtUserMapper, CtUser> impleme
      * @return
      */
     @Override
-    public String doLogin(String userName, String password) {
+    public Map<String, Object> doLogin(String userName, String password) {
+        // Prepare the redis to record user lock times 建立两个redis的键以管理用户登录失败的锁定状态
+        String lockKey = "login:lock:" + userName;
+        String failKey = "login:fail" + userName;
+        // Check whether the user is locked 检查用户是否被锁定
+        Boolean isLocked = redisTemplate.hasKey(lockKey);
+        if (Boolean.TRUE.equals(isLocked)) {
+            throw new RuntimeException("This account is temporarily locked due to too many failed login attempts. Please try again after 10 minutes.");
+        }
         // Check whether there is a userName with the same name in the database based on the given name
         // 根据name查询数据库中是否有同名的userName
         CtUser user = this.findByUserName(userName);
         if (user != null) {
-            String pwd = user.getPassword();
             String salt = user.getSalt();
             String forCheckPwd = ctUtils.getHashedPassword(password, salt);
+            String pwd = user.getPassword();
             if (forCheckPwd.equals(pwd)) {
-                Long userId = user.getId();
+                // Correct password, clear the fail record 密码正确，清除失败记录
+                redisTemplate.delete(failKey);
+                redisTemplate.delete(lockKey);
                 // Execute login 执行登录
+                Long userId = user.getId();
                 StpUtil.login(userId);
                 // Cache current user information 缓存当前用户信息
                 StpUtil.getTokenSession().set("loginUser", user);
-                // Return token 返回token
-                return StpUtil.getTokenInfo().tokenValue;
+                // Create return data 构建返回数据
+                Map<String, Object> result = new HashMap<>();
+                result.put("token", StpUtil.getTokenInfo().tokenValue);
+                result.put("roles", StpUtil.getRoleList());
+                result.put("permissions", StpUtil.getPermissionList());
+                return result;
             } else {
-                throw new RuntimeException("Password is wrong!");
+                // Wrong password, record fail times
+                Long fails = redisTemplate.opsForValue().increment(failKey);
+                if (fails == 1) {
+                    // Set valid period as 10 minutes 设置有效期为10分钟
+                    redisTemplate.expire(failKey, Duration.ofMinutes(10));
+                }
+                if (fails >= 5) {
+                    // Lock the account 锁定账号
+                    redisTemplate.opsForValue().set(lockKey, "LOCKED", Duration.ofMinutes(10));
+                    throw new RuntimeException("Too many failed attempts. Account is locked for 10 minutes.");
+                } else {
+                    throw new RuntimeException("Incorrect password. Attempt " + fails + "/5");
+                }
             }
         } else {
             throw new RuntimeException("User does not exist!");
@@ -339,4 +377,21 @@ public class CtUserServiceImpl extends ServiceImpl<CtUserMapper, CtUser> impleme
             ctTripService.deleteTrips(tripIds);
         }
     }
+
+    /**
+     * Check whether the username is unique. If it is, return true; otherwise, return false
+     * 判断用户名称是否唯一，若唯一则输出true，否则输出false
+     * @param userName
+     * @return
+     */
+    private boolean isUserNameUnique(String userName) {
+        LambdaQueryWrapper<CtUser> lct = new LambdaQueryWrapper<>();
+        lct.eq(CtUser::getUserName, userName);
+        if (this.count(lct) > 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }

@@ -40,8 +40,8 @@ public class CtUserController {
     public ApiResult doLogin(@RequestBody Map<String, String> loginData) {
         String userName = loginData.get("userName");
         String password = loginData.get("password");
-        String saToken = ctUserService.doLogin(userName, password);
-        return ApiResult.success(saToken);
+        Map<String, Object> loginResult = ctUserService.doLogin(userName, password);
+        return ApiResult.success(loginResult);
     }
 
 

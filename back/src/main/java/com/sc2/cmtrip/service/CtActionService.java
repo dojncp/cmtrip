@@ -2,6 +2,7 @@ package com.sc2.cmtrip.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sc2.cmtrip.entity.CtAction;
+import com.sc2.cmtrip.entity.CtPassEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,4 +26,12 @@ public interface CtActionService extends IService<CtAction> {
 
     @Transactional
     void deleteActions(List<Long> ids);
+
+    void bindActionToPassEntity(Long actionId, Long entityId);
+
+    void releaseActionFromPassEntity(Long actionId, Long entityId);
+
+    CtPassEntity getBoundPassEntity(Long actionId);
+
+    Integer getPassEntitySavedFare(Long entityId);
 }

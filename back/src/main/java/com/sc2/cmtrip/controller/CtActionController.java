@@ -97,4 +97,54 @@ public class CtActionController {
         ctActionService.deleteAction(id);
     }
 
+    /**
+     * Bind an action with a pass entity
+     * 将一次行程与一个通票实体绑定
+     * @param actionId
+     * @param entityId
+     */
+    @SaCheckPermission("bind-action-and-pass-entity")
+    @PostMapping("/bind-pass-entity")
+    public void bindActionToPassEntity(@RequestParam Long actionId,
+                                       @RequestParam Long entityId) {
+        ctActionService.bindActionToPassEntity(actionId, entityId);
+    }
+
+    /**
+     * Remove the relation between an action and a pass entity
+     * 移除一条行程对通票的依赖
+     * @param actionId
+     * @param entityId
+     */
+    @SaCheckPermission("release-pass-entity-from-action")
+    @PostMapping("/release-pass-entity")
+    public void releaseActionFromPassEntity(@RequestParam Long actionId,
+                                            @RequestParam Long entityId) {
+        ctActionService.releaseActionFromPassEntity(actionId, entityId);
+    }
+
+    /**
+     * Retrieve the bound pass entity of an action
+     * 获取绑定在行程上的通票实体
+     * @param actionId
+     * @return
+     */
+    @SaCheckPermission("get-bound-pass-entity-of-action")
+    @GetMapping("/get-bound-pass-entity")
+    public ApiResult getBoundPassEntity(@RequestParam Long actionId) {
+        return ApiResult.success(ctActionService.getBoundPassEntity(actionId));
+    }
+
+    /**
+     * Calculate the cost saved by using a pass
+     * 计算与某个通票实体绑定的行程总共可省下多少钱
+     * @param entityId
+     * @return
+     */
+    @SaCheckPermission("get-pass-entity-saved-fare")
+    @GetMapping("/get-pass-entity-saved-fare")
+    public ApiResult getPassEntitySavedFare(@RequestParam Long entityId) {
+        return ApiResult.success(ctActionService.getPassEntitySavedFare(entityId));
+    }
+
 }

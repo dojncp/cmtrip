@@ -217,16 +217,16 @@ export default {
       }));
     }
   },
-  created() {
-    const savedLang = localStorage.getItem('appLanguage');
-    if (savedLang && this.supportedLanguages.some(l => l.code === savedLang)) {
-      this.currentLanguage = savedLang;
-    }
-  },
+  // created() {
+  //   const savedLang = localStorage.getItem('appLanguage');
+  //   if (savedLang && this.supportedLanguages.some(l => l.code === savedLang)) {
+  //     this.currentLanguage = savedLang;
+  //   }
+  // },
   methods: {
     changeLanguage(lang) {
       this.currentLanguage = lang;
-      localStorage.setItem('appLanguage', lang);
+      // localStorage.setItem('appLanguage', lang);
     }
   }
 };

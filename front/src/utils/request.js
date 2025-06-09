@@ -32,7 +32,7 @@ service.interceptors.response.use(
                     return Promise.reject(response.data?.message);
                 } else {
                     console.warn("Other Errors: ", response.data?.message);
-                    ElMessage.error(`Error: ${response.data.code} - ${response.data?.message}`);
+                    ElMessage.error(`Error: ${response.data?.code} - ${response.data?.message}`);
                     return Promise.reject(response.data?.message);
                 }
                 const errorMessage = response.data.message;

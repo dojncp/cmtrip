@@ -119,15 +119,20 @@ const handleLogin = async () => {
     ElMessage.error('Please fill in all fields')
     return
   }
-
   loading.value = true
   try {
     const response = await login(userName.value, password.value)
     if (response.data) {
       if (response.data.code === 200) {
-        const token = response.data.message
-        localStorage.setItem('satoken', token)
+        const result = response.data.data
+        // Save the token into localStorage 将登录后的token保存至前端
+        localStorage.setItem('satoken', result.token)
+        // Save the username into localStorage 将登录用户名保存至前端
         localStorage.setItem('userName', userName.value)
+        // Save the permissions into localStorage 将登录用户权限保存至前端
+        localStorage.setItem('permissions', JSON.stringify(result.permissions))
+        // Save the roles into localStorage 将登录用户角色保存至前端
+        localStorage.setItem('roles', JSON.stringify(result.roles))
         ElMessage.success('Login successfully!')
         await router.push('/home')
       } else {

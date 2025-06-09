@@ -87,7 +87,7 @@ public class CtTripController {
 
     /**
      * Delete a trip
-     * 删除旅行记
+     * 删除旅行
      * @param id
      */
     @SaCheckPermission("delete-trip")

@@ -35,6 +35,8 @@ public class CtMenuServiceImpl extends ServiceImpl<CtMenuMapper, CtMenu> impleme
             LambdaQueryWrapper<CtMenu> lcm = new LambdaQueryWrapper<>();
             // Exclude system management type menus 排除系统管理类型的菜单
             lcm.notLikeRight(CtMenu::getPath, "/system");
+            // Exclude pass management type menus 排除通票管理类型的菜单
+            // lcm.notLikeRight(CtMenu::getPath, "/pass-management");
             List<CtMenu> menus = this.list(lcm);
             List<CtMenu> menuTree = buildMenuTree(menus);
             return menuTree;

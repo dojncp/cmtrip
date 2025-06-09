@@ -65,7 +65,11 @@
     <el-dialog v-model="roleDialog.visible" :title="roleDialog.title" width="30%">
       <el-form :model="roleForm" label-width="140px">
         <el-form-item label="Role Name" required>
-          <el-input v-model="roleForm.roleName" placeholder="Please enter role name"></el-input>
+          <el-input
+              v-model="roleForm.roleName"
+              placeholder="Please enter role name"
+              :disabled="roleDialog.title === 'Edit Role'"
+          ></el-input>
         </el-form-item>
       </el-form>
       <template #footer>

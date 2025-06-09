@@ -1,6 +1,7 @@
 package com.sc2.cmtrip.handler;
 
 import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.util.SaResult;
 import com.sc2.cmtrip.common.ApiResult;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +42,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotLoginException.class)
     public ApiResult handleNotLoginException(NotLoginException e) {
         return ApiResult.error(1000, "Not logged in or login has expired.");
+    }
+
+    /**
+     * Catch the NotPermissionException errors thrown by Sa-Token
+     * 捕获Sa-Token发出的权限异常错误
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(NotPermissionException.class)
+    public ApiResult handleNotPermissionException(NotPermissionException e) {
+        return ApiResult.error(1100, "Permission denied!");
     }
 
     /**

@@ -3,15 +3,15 @@ sc2:
   name: CMTRIP
   version: 1.0.0
   copyRightYear: 2025
-  profile: /Users/christopher/projects/java/cmtrip/file_upload # The path would uploaded files be saved
-#  profile: /projects/java/cmtrip/file_upload
+  profile: /Users/christopher/projects/java/github/cmtrip/file_upload
+  #profile: /projects/cmtrip/file_upload # The path would uploaded files be saved
 
 ############## Spring Configuration ##############
 spring:
   application:
     name: cmtrip
   datasource:
-    url: jdbc:mysql://localhost:3306/cmtrip?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/cmtrip?useUnicode=true&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 12345678
@@ -48,7 +48,7 @@ mybatis-plus:
 ############## Log Configuration ##############
 logging:
   file:
-    name: /Users/christopher/projects/java/cmtrip/logs/cmtrip.log # real path
+    name: /projects/java/cmtrip/logs/cm-trip.log # real path
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss} {%thread} %-5level %logger{36} - %msg%n" # Customized file log pattern
 

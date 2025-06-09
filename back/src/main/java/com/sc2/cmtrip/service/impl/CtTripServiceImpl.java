@@ -109,7 +109,7 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
     public void addTrip(CtTrip ctTrip) {
         // Validate the uniqueness of the username 校验用户名唯一性
         if (!isTripNameUnique(ctTrip.getTripName())) {
-            throw new RuntimeException("Name of trip already existed!");
+            throw new RuntimeException("Name of the trip already existed!");
         }
         // The currently logged-in user's ID 现在登录的用户id
         Long loginId = Long.parseLong((String) StpUtil.getLoginId());
@@ -156,6 +156,10 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
      */
     @Override
     public void editTrip(CtTrip ctTrip) {
+        // 检查其他trip的名字中是否有重复
+        if (!isTripNameUniqueExceptSelf(ctTrip.getTripName(), ctTrip.getId())) {
+            throw new RuntimeException("This trip name already exists!");
+        }
         // The currently logged-in user's ID 现在登录的用户id
         Long loginId = Long.parseLong((String) StpUtil.getLoginId());
         ctTrip.setUpdateBy(String.valueOf(loginId));
@@ -171,9 +175,12 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
      */
     @Override
     public void editTripWithImage(CtTrip ctTrip, MultipartFile image) {
+        // Check whether the new trip name is unique 检查其他trip的名字中是否有重复
+        if (!isTripNameUniqueExceptSelf(ctTrip.getTripName(), ctTrip.getId())) {
+            throw new RuntimeException("This trip name already exists!");
+        }
         // The virtual path of the old image 旧图片的虚拟路径
         String oldImageUrl = ctTrip.getImgPath();
-        // Do not validate the uniqueness of the trip name 不校验旅行名称唯一性
         // The virtual path of the new image 图片文件虚拟路径
         String imageProfileUrl = ctUtils.uploadImage(image);
         // Write the virtual path into the instance 将虚拟路径写入实例
@@ -187,7 +194,7 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
             }
         } catch (Exception e) {
             // Record to the logs 记录日志
-            log.warn("Failed to delete old image: {," + oldImageUrl + "}, error: " + e.getMessage());
+            log.warn("Failed to delete old trip image: {," + oldImageUrl + "}, error: " + e.getMessage());
         }
     }
 
@@ -199,20 +206,22 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
     @Transactional
     @Override
     public void deleteTrip(Long id) {
+        // Query the number of actions under the current item; if it's not zero, deletion is not allowed
         // 查询名下action数量，如果不为0则不允许删除
         List<Long> actionIds = ctTripActionService.getActionIdsByTripId(id);
         if (!actionIds.isEmpty()) {
             throw new RuntimeException("There are action(s) of this trip had not been deleted!");
         }
-        // 待删图片路径
+        // Path of the image to be deleted 待删图片路径
         String imageUrlToDelete = ctTripMapper.selectById(id).getImgPath();
-        // 删除trip记录
+        // Delete the trip 删除trip记录
         this.removeById(id);
+        // Query and delete the records in the user-trip relation table
         // 查询并删除user-trip关系表记录
         LambdaQueryWrapper<CtUserTrip> lcut = new LambdaQueryWrapper<>();
         lcut.eq(CtUserTrip::getTripId, id);
         ctUserTripService.remove(lcut);
-        // ctActionService.deleteActions(actionIds);
+        // Only delete the physical trip image file if an image path exists
         // 仅在有图片地址时，删除trip图片物理文件
         if (imageUrlToDelete != null && !imageUrlToDelete.isEmpty()) {
             // Try to delete the image 尝试删除图片
@@ -239,7 +248,7 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
         for (Long id : ids) {
             List<Long> actionIds = ctTripActionService.getActionIdsByTripId(id);
             if (!actionIds.isEmpty()) {
-                throw new RuntimeException("Trip ID: " + id + " has associated actions and cannot be deleted!");
+                throw new RuntimeException("Some trips has associated actions and cannot be deleted!");
             }
         }
         List<String> imageUrlsToDelete = new ArrayList<>();
@@ -249,13 +258,13 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
                 imageUrlsToDelete.add(trip.getImgPath());
             }
         }
-        // Batch delete trips
+        // Batch delete trips 批量删除旅行
         this.removeByIds(ids);
-        // Batch delete user-trip relation table records
+        // Batch delete user-trip relation table records 批量删除user-trip关系记录
         LambdaQueryWrapper<CtUserTrip> lcut = new LambdaQueryWrapper<>();
         lcut.in(CtUserTrip::getTripId, ids);
         ctUserTripService.remove(lcut);
-        // Batch delete image files
+        // Batch delete image files 批量删除图片
         for (String imageUrl : imageUrlsToDelete) {
             try {
                 ctUtils.deleteFile(imageUrl);
@@ -279,6 +288,26 @@ public class CtTripServiceImpl extends ServiceImpl<CtTripMapper, CtTrip> impleme
         } else {
             return true;
         }
+    }
+
+    /**
+     * Check whether the trip name is unique when edited. If it is, return true; otherwise, return false
+     * 编辑时，判断旅行名称是否与其他既有旅行冲突，若不冲突则输出true，否则输出false
+     * @param newTripName
+     * @param id
+     * @return
+     */
+    private boolean isTripNameUniqueExceptSelf(String newTripName, Long id) {
+        LambdaQueryWrapper<CtTrip> lct = new LambdaQueryWrapper<>();
+        lct.eq(CtTrip::getTripName, newTripName)
+                .ne(CtTrip::getId, id);
+        if (this.count(lct) > 0) {
+            List<String> otherTripNames = this.list(lct).stream().map(CtTrip::getTripName).toList();
+            if (otherTripNames.contains(newTripName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

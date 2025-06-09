@@ -73,7 +73,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <!-- 分页组件 -->
+        <!-- Pagination component 分页组件 -->
         <el-pagination
             class="pagination"
             @size-change="handleSizeChange"
@@ -89,7 +89,7 @@
         <el-empty description="No certain data" />
       </div>
 
-      <!-- Pagination component 新增或编辑旅行 -->
+      <!-- Add or edit a trip 新增或编辑旅行 -->
       <el-dialog v-model="dialogVisible" :title="isEditing ? 'Edit Trip' : 'New Trip'" width="500px">
         <el-form ref="formRef" :rules="rules" :model="newTripForm" label-width="120px">
           <el-form-item label="Name" prop="tripName">
@@ -199,6 +199,26 @@
           </el-form-item>
           <el-form-item label="End Time" prop="actionEndTime">
             <el-date-picker v-model="newActionForm.actionEndTime" type="datetime" placeholder="Pick the date and the time" />
+          </el-form-item>
+          <el-form-item label="Fare" prop="fare">
+            <el-input-number
+                v-model="newActionForm.fare"
+                :min="0"
+                :step="0.1"
+                controls-position="right"
+            />
+          </el-form-item>
+          <el-form-item label="Fare Currency" prop="fareCurrency">
+            <el-select v-model="newActionForm.fareCurrency" placeholder="Select">
+              <el-option label="USD" value="USD" />
+              <el-option label="CNY" value="CNY" />
+              <el-option label="EUR" value="EUR" />
+              <el-option label="JPY" value="JPY" />
+              <el-option label="HKD" value="HKD" />
+              <el-option label="GBP" value="GBP" />
+              <el-option label="CAD" value="CAD" />
+              <el-option label="AUD" value="AUD" />
+            </el-select>
           </el-form-item>
           <el-form-item label="Description" prop="description">
             <el-input v-model="newActionForm.description" />
@@ -561,6 +581,8 @@ const newActionForm = ref({
   actionType: '',
   actionStartTime: null,
   actionEndTime: null,
+  fare: null,
+  fareCurrency: '',
   description: '',
   imgPath: '',
   remark: ''
@@ -585,6 +607,10 @@ const newActionRules = {
   actionEndTime: [
     { required: true, message: 'Please select the end time', trigger: 'blur' }
   ],
+  fare: [
+      { required: true, message: 'Please input the fare', trigger: 'blur' }],
+  fareCurrency: [
+      { required: true, message: 'Please select the fare Currency', trigger: 'blur' }]
 }
 
 // Function to clear the action form 清空行动表单函数
@@ -594,6 +620,8 @@ const resetActionForm = () => {
     actionType: '',
     actionStartTime: null,
     actionEndTime: null,
+    fare: null,
+    fareCurrency: '',
     description: '',
     imgPath: '',
     remark: ''
@@ -626,7 +654,7 @@ const openAddActionDialog = (row) => {
 const submitNewAction = async() => {
   actionFormRef.value.validate(async (valid) => {
     if (!valid) {
-      ElMessage.error('请填写必填项');
+      ElMessage.error('Please fill in all supposed items!');
       return;
     }
     try {
@@ -637,9 +665,9 @@ const submitNewAction = async() => {
         actionEndTime: formatDateTimeWithoutTimezone(newActionForm.value.actionEndTime),
       };
       if (selectedFile.value) {
-        await addActionWithImage(tripId.value, rightTimeActionForm.value, selectedFile.value);
+        await addActionWithImage(tripId.value, rightTimeActionForm, selectedFile.value);
       } else {
-        await addAction(tripId.value, rightTimeActionForm.value);
+        await addAction(tripId.value, rightTimeActionForm);
       }
       ElMessage.success("New action created successfully!");
       newActionDialogVisible.value = false;

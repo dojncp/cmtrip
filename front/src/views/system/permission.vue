@@ -55,7 +55,11 @@
     <el-dialog v-model="permissionDialog.visible" :title="permissionDialog.title" width="30%">
       <el-form :model="permissionForm" label-width="140px">
         <el-form-item label="Permission Name" required>
-          <el-input v-model="permissionForm.permissionName" placeholder="Please enter permission name"></el-input>
+          <el-input
+              v-model="permissionForm.permissionName"
+              placeholder="Please enter permission name"
+              :disabled="permissionDialog.title === 'Edit Permission'"
+          ></el-input>
         </el-form-item>
       </el-form>
       <template #footer>

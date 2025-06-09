@@ -78,13 +78,15 @@
             <el-table-column type="index" width="50"></el-table-column>
             <el-table-column prop="actionName" label="Action Name" width="150"></el-table-column>
             <el-table-column prop="actionType" label="Type" width="100"></el-table-column>
-            <el-table-column label="Time" width="220">
+            <el-table-column label="Time" width="180">
               <template #default="{ row }">
                 <div>{{ formatDateTime(row.actionStartTime) }}</div>
                 <div>to {{ formatDateTime(row.actionEndTime) }}</div>
               </template>
             </el-table-column>
-            <el-table-column label="Description">
+            <el-table-column prop="fare" label="Fare"></el-table-column>
+            <el-table-column prop="fareCurrency" label="Currency"></el-table-column>
+            <el-table-column label="Description"  width="160">
               <template #default="{ row }">
                 <el-button v-if="row.description" size="small" @click="showDescription(row)" style="height: auto">
                   View <br/> Description
@@ -92,7 +94,7 @@
                 <span v-else> </span>
               </template>
             </el-table-column>
-            <el-table-column label="Image">
+            <el-table-column label="Image"  width="160">
               <template #default="{ row }">
                 <el-image
                     v-if="row.imgPath"
@@ -105,10 +107,21 @@
                 />
               </template>
             </el-table-column>
-            <el-table-column label="Operations" width="180">
+            <el-table-column label="Operations" width="150">
               <template #default="{ row }">
                 <el-button size="small" @click="openEditActionDialog(row)">Edit</el-button>
                 <el-button size="small" type="danger" @click="deleteAction(row)">Delete</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column label="Pass" width="120">
+              <template #default="{ row }">
+                <el-button size="small" type="info" @click="openPassOperationDialog(row)">Check</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column label="Remark"  width="120">
+              <template #default="{ row }">
+                <el-button v-if="row.remark" size="small" @click="showRemark(row)" style="height: auto">View <br/> Remark</el-button>
+                <span v-else> </span>
               </template>
             </el-table-column>
           </el-table>
@@ -168,6 +181,26 @@
                 placeholder="Pick the date and the time"
             />
           </el-form-item>
+          <el-form-item label="Fare" prop="fare">
+            <el-input-number
+                v-model="currentActionForm.fare"
+                :min="0"
+                :step="0.1"
+                controls-position="right"
+            />
+          </el-form-item>
+          <el-form-item label="Fare Currency" prop="fareCurrency">
+            <el-select v-model="currentActionForm.fareCurrency" placeholder="Select">
+              <el-option label="USD" value="USD" />
+              <el-option label="CNY" value="CNY" />
+              <el-option label="EUR" value="EUR" />
+              <el-option label="JPY" value="JPY" />
+              <el-option label="HKD" value="HKD" />
+              <el-option label="GBP" value="GBP" />
+              <el-option label="CAD" value="CAD" />
+              <el-option label="AUD" value="AUD" />
+            </el-select>
+          </el-form-item>
           <el-form-item label="Description" prop="description">
             <el-input v-model="currentActionForm.description" />
           </el-form-item>
@@ -224,12 +257,91 @@
           <el-button type="primary" @click="descriptionDialogVisible = false">Close</el-button>
         </template>
       </el-dialog>
+
+      <!-- Remark popup 备注弹窗 -->
+      <el-dialog v-model="remarkDialogVisible" :title="'Remark of ' + currentActionName" width="500px">
+        <div style="white-space: pre-line;">{{ currentRemark }}</div>
+        <template #footer>
+          <el-button type="primary" @click="remarkDialogVisible = false">Close</el-button>
+        </template>
+      </el-dialog>
+
+      <!-- Pass entity operation Dialog 通票实体操作对话框 -->
+      <el-dialog
+          v-model="passOperationDialog.visible"
+          :title="passOperationDialog.title"
+          width="35%"
+      >
+        <el-scrollbar v-loading="passOperationDialog.loading">
+          <el-table
+              :data="passOperationDialog.allPassEntities"
+              style="width: 100%"
+              @row-click="(row) => passOperationDialog.selectedPassEntity = row"
+          >
+            <el-table-column type="index" width="50"></el-table-column>
+            <el-table-column width="150" align="center" label="Entity Name">
+              <template #default="{ row }">
+                <el-radio
+                    v-model="passOperationDialog.selectedPassEntityId"
+                    :label="row.id"
+                    @change="(val) => handlePassEntityChange(val, row)"
+                    @click.stop
+                >
+                {{ row.entityName }}
+                </el-radio>
+              </template>
+            </el-table-column>
+            <el-table-column label="Valid Period" width="140">
+              <template #default="{ row }">
+                <div>{{ formatDate(row.passStartDate) }}</div>
+                <div>to {{ formatDate(row.passEndDate) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="Description">
+              <template #default="{ row }">
+                <el-button
+                    v-if="row.description"
+                    size="small"
+                    @click.stop="showPassEntityDescription(row)"
+                    style="height: auto"
+                >
+                  View
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-scrollbar>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="passOperationDialog.visible = false">Cancel</el-button>
+            <el-button
+                type="primary"
+                @click="savePassEntityBinding"
+                :disabled="!passOperationDialog.selectedPassEntityId"
+            >
+              Bind
+            </el-button>
+          </span>
+        </template>
+      </el-dialog>
+      <!-- Pass entity description dialog 通票实体描述对话框-->
+      <el-dialog
+          v-model="passEntityDescriptionDialog.visible"
+          :title="'Description of ' + currentPassEntityName"
+          width="500px"
+      >
+        <div style="white-space: pre-line;">{{ currentPassEntityDescription }}</div>
+        <template #footer>
+          <el-button type="primary" @click="passEntityDescriptionDialog.visible = false">Close</el-button>
+        </template>
+      </el-dialog>
+
     </el-main>
   </el-container>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import {ref, computed, onMounted, reactive} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Search, Calendar, Location } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -240,7 +352,7 @@ import {
   addActionWithImage,
   editAction,
   editActionWithImage,
-  deleteActionById
+  deleteActionById, bindActionToPassEntity, getBoundPassEntityOfTheAction
 } from '@/api/action';
 import {
   getFullImageUrl,
@@ -248,6 +360,7 @@ import {
   formatDateTime,
   formatDateTimeWithoutTimezone
 } from '@/utils/utils';
+import {getMyPassEntities} from "@/api/passEntity";
 
 // Description related 描述相关
 const descriptionDialogVisible = ref(false);
@@ -260,9 +373,99 @@ const showDescription = (row) => {
   descriptionDialogVisible.value = true;
 }
 
+// Update the selectedPassEntityName when the status of radio changes 当单选框选中状态变化时，更新 selectedPassEntityName
+const handlePassEntityChange = (selectedId, row) => {
+  if (selectedId) {
+    // Find the selected entity to update the entity name 找到选中的实体，并更新名称
+    const selectedEntity = passOperationDialog.allPassEntities.find(
+        e => e.id === selectedId
+    );
+    if (selectedEntity) {
+      passOperationDialog.selectedPassEntityName = selectedEntity.entityName;
+    }
+  } else {
+    passOperationDialog.selectedPassEntityName = null;
+  }
+};
+
+// Pass entity operation dialog 通票实体操作对话框
+const passOperationDialog = reactive({
+  visible: false,
+  title: 'Bind Pass Entity',
+  currentActionId: null,
+  currentActionName: '',
+  allPassEntities: [],
+  selectedPassEntityName: '',
+  selectedPassEntityId: null,
+  loading: false
+});
+// Open the pass entity operation dialog 打开通票实体操作对话框
+const openPassOperationDialog = async (action) => {
+  try {
+    passOperationDialog.loading = true;
+    passOperationDialog.currentActionId = action.id;
+    passOperationDialog.currentActionName = action.actionName;
+    passOperationDialog.title = `Bind Pass Entity for ${passOperationDialog.currentActionName}`;
+    // Get all pass entities 获取所有通票实体
+    const response = await getMyPassEntities();
+    passOperationDialog.allPassEntities = response.data.data || [];
+    // Get bound pass entity 获取已绑定的通票实体
+    const boundResponse = await getBoundPassEntityOfTheAction(action.id);
+    const boundEntity = boundResponse.data.data;
+    // If bound, set the selected status 如果有绑定，则设置选中状态
+    passOperationDialog.selectedPassEntityId = boundEntity?.id || null;
+    passOperationDialog.selectedPassEntityName = boundEntity?.entityName || '';
+    passOperationDialog.visible = true;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    passOperationDialog.loading = false;
+  }
+};
+// Save the binding operation 保存绑定操作
+const savePassEntityBinding = async () => {
+  if (!passOperationDialog.selectedPassEntityId) {
+    await ElMessageBox.confirm(
+        'Cancel operation?',
+        'Confirm Operation',
+        {confirmButtonText: 'Confirm', cancelButtonText: 'Cancel', type: 'warning'}
+    );
+    passOperationDialog.visible = false;
+    return;
+  }
+  try {
+    await ElMessageBox.confirm(
+        `Are you sure to bind the action "${passOperationDialog.currentActionName}" to pass entity "${passOperationDialog.selectedPassEntityName}"?`,
+        'Confirm Binding',
+        { confirmButtonText: 'Confirm', cancelButtonText: 'Cancel', type: 'warning' }
+    );
+    await bindActionToPassEntity(
+        passOperationDialog.currentActionId,
+        passOperationDialog.selectedPassEntityId
+    );
+    ElMessage.success('Pass entity bound successfully');
+    passOperationDialog.visible = false;
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error(error);
+    }
+  }
+};
+// Pass Entity Description related 通票实体描述相关
+const passEntityDescriptionDialog = reactive({
+  visible: false
+});
+const currentPassEntityDescription = ref('');
+const currentPassEntityName = ref('');
+// Show pass entity description 显示通票实体描述
+const showPassEntityDescription = (row) => {
+  currentPassEntityDescription.value = row.description;
+  currentPassEntityName.value = row.entityName;
+  passEntityDescriptionDialog.visible = true;
+};
+
 const route = useRoute();
 const router = useRouter();
-
 const goBackToHomepage = () => {
   router.push("/home");
 };
@@ -335,6 +538,17 @@ const handleSearch = () => {
   currentPage.value = 1; // 搜索时重置到第一页
 };
 
+// Remark-related 备注相关
+const remarkDialogVisible = ref(false);
+const currentRemark = ref('');
+
+// Display the remark 显示备注
+const showRemark = (row) => {
+  currentRemark.value = row.remark;
+  currentActionName.value = row.actionName;
+  remarkDialogVisible.value = true;
+};
+
 // Get the list of trips 获取行程列表
 const fetchTrips = async () => {
   try {
@@ -388,6 +602,8 @@ const currentActionForm = ref({
   actionType: '',
   actionStartTime: null,
   actionEndTime: null,
+  fare: null,
+  fareCurrency: '',
   description: '',
   imgPath: '',
   remark: ''
@@ -398,6 +614,8 @@ const actionRules = {
   actionType: [{ required: true, message: 'Please select the action type', trigger: 'change' }],
   actionStartTime: [{ required: true, message: 'Please select the start time', trigger: 'change' }],
   actionEndTime: [{ required: true, message: 'Please select the end time', trigger: 'change' }],
+  fare: [{ required: true, message: 'Please input the fare', trigger: 'blur' }],
+  fareCurrency: [{ required: true, message: 'Please select the fare Currency', trigger: 'blur' }]
 };
 
 // Image upload related 图片上传相关
@@ -430,6 +648,8 @@ const openAddActionDialog = () => {
     actionType: '',
     actionStartTime: null,
     actionEndTime: null,
+    fare: null,
+    fareCurrency: '',
     description: '',
     imgPath: '',
     remark: ''
@@ -450,37 +670,42 @@ const openEditActionDialog = (action) => {
 
 // Submit the action form 提交行动表单
 const submitActionForm = async () => {
-  try {
-    await actionFormRef.value.validate();
-    // Fix the time 固化时间
-    const rightTimeActionForm = {
-      ...currentActionForm.value,
-      actionStartTime: formatDateTimeWithoutTimezone(currentActionForm.value.actionStartTime),
-      actionEndTime: formatDateTimeWithoutTimezone(currentActionForm.value.actionEndTime),
-    };
-    if (isEditingAction.value) {
-      if (actionSelectedFile.value) {
-        await editActionWithImage(rightTimeActionForm, actionSelectedFile.value);
-      } else {
-        await editAction(rightTimeActionForm);
-      }
-      ElMessage.success('Action updated successfully');
-    } else {
-      if (actionSelectedFile.value) {
-        await addActionWithImage(activeTripId.value, rightTimeActionForm, actionSelectedFile.value);
-      } else {
-        await addAction(activeTripId.value, rightTimeActionForm);
-      }
-      ElMessage.success('Action created successfully');
+  actionFormRef.value.validate(async (valid) => {
+    if (!valid) {
+      ElMessage.error('Please fill in the required fields.')
+      return
     }
-    actionDialogVisible.value = false;
-    await fetchActions(activeTripId.value);
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error(`Failed to ${isEditingAction.value ? 'edit' : 'create'} action`);
-      console.error(error);
+    try {
+      // Fix the time 固化时间
+      const rightTimeActionForm = {
+        ...currentActionForm.value,
+        actionStartTime: formatDateTimeWithoutTimezone(currentActionForm.value.actionStartTime),
+        actionEndTime: formatDateTimeWithoutTimezone(currentActionForm.value.actionEndTime),
+      };
+      if (isEditingAction.value) {
+        if (actionSelectedFile.value) {
+          await editActionWithImage(rightTimeActionForm, actionSelectedFile.value);
+        } else {
+          await editAction(rightTimeActionForm);
+        }
+        ElMessage.success('Action updated successfully');
+      } else {
+        if (actionSelectedFile.value) {
+          await addActionWithImage(activeTripId.value, rightTimeActionForm, actionSelectedFile.value);
+        } else {
+          await addAction(activeTripId.value, rightTimeActionForm);
+        }
+        ElMessage.success('Action created successfully');
+      }
+      actionDialogVisible.value = false;
+      await fetchActions(activeTripId.value);
+    } catch (error) {
+      if (error !== 'cancel') {
+        ElMessage.error(`Failed to ${isEditingAction.value ? 'edit' : 'create'} action`);
+        console.error(error);
+      }
     }
-  }
+  });
 };
 
 // Delete the action 删除行动
@@ -531,17 +756,20 @@ onMounted(() => {
 }
 
 .action-management {
-  height: 100vh;
+  flex: 1;
   display: flex;
+  height: auto;
+  min-height: 600px;
 }
 
 .trip-list-container {
+  flex: 0 0 300px;
   border-right: 1px solid #e6e6e6;
   background-color: #f5f7fa;
   padding: 20px;
-  height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .trip-list-header {
@@ -550,7 +778,8 @@ onMounted(() => {
 
 .trip-scrollbar {
   flex: 1;
-  height: 0;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .trip-item {
@@ -592,8 +821,11 @@ onMounted(() => {
 }
 
 .action-main-container {
+  flex: 1;
   padding: 20px;
   background-color: white;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .action-header {

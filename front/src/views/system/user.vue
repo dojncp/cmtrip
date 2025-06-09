@@ -355,7 +355,7 @@ const showPermissions = async (user, event) => {
 // Edit user (needs to be implemented by you) 编辑用户 (需要您实现)
 const editUser = (user) => {
   console.log('编辑用户:', user);
-  ElMessage('编辑功能待实现');
+  ElMessage('This operation is not in service.');
 };
 
 // Delete user 删除用户

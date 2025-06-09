@@ -5,6 +5,7 @@ import com.sc2.cmtrip.entity.CtUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CtUserService extends IService<CtUser> {
 
@@ -14,7 +15,7 @@ public interface CtUserService extends IService<CtUser> {
 
     void deleteUser(Long id);
 
-    String doLogin(String userName, String password);
+    Map<String, Object> doLogin(String userName, String password);
 
     void doLogout();
 

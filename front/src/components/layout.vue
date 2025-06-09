@@ -2,25 +2,25 @@
   <div class="layout">
     <header class="header">
       <router-link to="/home" class="logo-wrapper">
-        <h2 class="logo"
-            v-on:contextmenu.prevent
-            v-on:dragstart.prevent
-            v-on:selectstart.prevent>
+        <div class="logo">
           <img src="/favicon.ico"
                alt="Logo"
                draggable="false"
                v-on:contextmenu.prevent
                v-on:dragstart.prevent
                v-on:selectstart.prevent>
-          CM-TRIP: Support Your Trips
-        </h2>
+          <div class="logo-text">
+            <div class="logo-main">CM-TRIP</div>
+            <div class="logo-sub">Support Your Trips</div>
+          </div>
+        </div>
       </router-link>
-      <div>
-        {{ $t('header.language') }}: <LanguageSwitcher />
+      <div class="header-action">
+        <LanguageSwitcher />
       </div>
       <div>
         <el-text>{{ $t('header.currentUser') }}: {{ userName }}</el-text>
-        <button class="logout-button" @click="logout">
+        <button class="logout-button" @click="handleLogout">
           {{ $t('header.logout') }}
         </button>
       </div>
@@ -38,9 +38,11 @@
             </ul>
           </template>
           <template v-else>
-            <router-link :to="menu.path" class="top-level-link">
-              {{ menu.menuName }}
-            </router-link>
+            <li class="menu-item">
+              <router-link :to="menu.path" class="top-level-link">
+                {{ menu.menuName }}
+              </router-link>
+            </li>
           </template>
         </li>
       </ul>
@@ -156,7 +158,7 @@ onMounted(() => {
 // 自动暴露给模板的内容（模板可直接访问这些 ref 和方法）
 defineExpose({
   topMenus,
-  logout: handleLogout,
+  handleLogout,
   userName
 });
 </script>
@@ -169,7 +171,7 @@ defineExpose({
   width: 100%;
   min-height: 100vh;
   position: relative;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c8d7c3 100%);
+  background: linear-gradient(135deg, rgba(156, 191, 243, 0.58) 0%, rgba(114, 191, 252, 0.43) 100%);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -178,7 +180,7 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   width: 90vw;
-  padding: 20px;
+  padding: 10px;
   background-color: white;
   margin: 20px;
   border-radius: 16px;
@@ -191,33 +193,40 @@ defineExpose({
   }
 }
 
-.header .logo {
-  margin: 10px 10px;
-  font-size: 40px;
-  color: #2d3748;
-  font-weight: 700;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-touch-callout: none;
-}
-
 .logo {
   display: flex;
   align-items: center;
   margin: 10px 20px;
   color: #2d3748;
-}
+  text-align: left; // 确保左对齐
 
-.logo img {
-  height: 2em;
-  margin-right: 10px;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  pointer-events: none;
+  img {
+    height: 8em; // 保持你调整后的logo大小
+    margin-right: 20px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo-main {
+    font-size: 50px;
+    font-weight: 700;
+    line-height: 1.05;
+  }
+
+  .logo-sub {
+    font-size: 20px;
+    font-weight: 500;
+    margin-top: 5px;
+    color: #4a5568;
+  }
 }
 
 .logo-wrapper {
@@ -248,11 +257,18 @@ defineExpose({
   }
 }
 
+.header-action {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .navbar {
   width: 90vw;
-  background: linear-gradient(135deg, rgba(114, 159, 91, 0.76) 0%, rgba(41, 110, 26, 0.67) 100%);
+  background: linear-gradient(135deg, rgba(42, 65, 159, 0.73) 0%, rgba(52, 76, 234, 0.73) 100%);
   padding: 0;
   display: flex;
+  align-content: center;
   justify-content: center;
   z-index: 1000;
   border-radius: 16px;
@@ -265,6 +281,7 @@ defineExpose({
 .menu {
   display: flex;
   justify-content: space-around;
+  align-content: center;
   width: 100%;
   list-style: none;
   padding: 0;
@@ -274,13 +291,18 @@ defineExpose({
 .menu-item {
   flex: 1;
   text-align: center;
-  padding: 14px 15px;
+  align-content: center;
   cursor: pointer;
   color: white;
   font-size: 15px;
   font-weight: 500;
   position: relative;
   transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 
   &[aria-haspopup="true"]::after {
     content: "▼";
@@ -337,10 +359,21 @@ defineExpose({
 
 .top-level-link {
   display: block;
+  width: 100%;
+  height: 100%;
+  padding: 14px 15px;
+  text-align: center;
   color: white;
   font-size: inherit;
   text-decoration: none !important;
+  align-items: center;
+  justify-content: center;
   transition: color 0.3s;
+  display: flex;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1); // 添加hover效果更友好
+  }
 }
 
 .content {
@@ -354,7 +387,7 @@ defineExpose({
 
 .footer {
   width: 90vw;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 1);
   color: #2d3748;
   padding: 40px 0 0;
   margin-top: 10px;
@@ -393,7 +426,7 @@ defineExpose({
   bottom: 0;
   width: 50px;
   height: 2px;
-  background: linear-gradient(135deg, #64d369 0%, #0e7c14 100%);
+  background: linear-gradient(135deg, #67a9ea 0%, #344cea 100%);
 }
 
 .footer-section p, .footer-section li {

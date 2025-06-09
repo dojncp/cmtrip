@@ -3,7 +3,8 @@ sc2:
   name: CMTRIP
   version: 1.0.0
   copyRightYear: 2025
-  profile: /projects/cmtrip/file_upload # The path would uploaded files be saved
+  profile: /Users/christopher/projects/java/github/cmtrip/file_upload
+  #profile: /projects/cmtrip/file_upload # The path would uploaded files be saved
 
 ############## Spring Configuration ##############
 spring:

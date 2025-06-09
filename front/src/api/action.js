@@ -82,3 +82,45 @@ export function deleteActionById(id) {
     });
 }
 
+export function bindActionToPassEntity(actionId, entityId) {
+    return request({
+        url: API_URL + '/bind-pass-entity',
+        method: 'post',
+        params: {
+            actionId: actionId,
+            entityId: entityId
+        }
+    });
+}
+
+export function releaseActionFromPassEntity(actionId, entityId) {
+    return request({
+        url: API_URL + '/release-pass-entity',
+        method: 'post',
+        params: {
+            actionId: actionId,
+            entityId: entityId
+        }
+    });
+}
+
+export function getBoundPassEntityOfTheAction(actionId) {
+    return request({
+        url: API_URL + '/get-bound-pass-entity',
+        method: 'get',
+        params: {
+            actionId: actionId
+        }
+    });
+}
+
+export function getPassEntitySavedFare(entityId) {
+    return request({
+        url: API_URL + '/get-pass-entity-saved-fare',
+        method: 'get',
+        params: {
+            entityId: entityId
+        }
+    });
+}
+

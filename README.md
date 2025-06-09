@@ -21,7 +21,7 @@ It uses **sa-token** (official docs: https://sa-token.cc/index.html) with a Role
 The default top-privileged user is `superAdmin` with the password `123456`. This user cannot be modified or deleted.
 
 **(3) Core Features**  
-Each **trip** can contain multiple **actions**. Users can upload one image per trip or action. Future updates may include budget estimation via travel pass suggestions.
+Each **trip** can contain multiple **actions**. Users can upload one image per trip or action. Additionally, it supports creating new transportation passes and linking trips to a specific pass to calculate the transportation cost savings.
 
 ### How to Use
 
@@ -68,7 +68,7 @@ iOS版本正在开发中，敬请期待。
 默认最高权限的用户名为 `superAdmin` ，相应的密码为 `123456` ，该用户禁止修改或删除。
 
 **（3）原始业务结构**  
-程序以“旅行（trip）”与“行程（action）”为两级结构，一次旅行可包含多个行程，每项都支持上传一张图片。未来版本可能支持旅行票据预算分析等功能。
+程序以“旅行（trip）”与“行程（action）”为两级结构，一次旅行可包含多个行程，每项都支持上传一张图片。此外，支持新建交通通票，可将形成绑定某张通票，以计算可节省的交通费用。
 
 ### 使用指南
 
@@ -114,7 +114,7 @@ Utilise [sa-token](https://sa-token.cc/index.html) pour gérer les rôles et per
 L'utilisateur par défaut avec les privilèges les plus élevés est `superAdmin`, avec le mot de passe `123456`. Cet utilisateur ne peut pas être modifié ni supprimé.
 
 **(3) Fonctionnalités**  
-Une excursion (trip) peut contenir plusieurs actions. Chaque élément peut comporter une image. Les prochaines versions pourront proposer des calculs de budget basés sur les pass touristiques.
+Une excursion (trip) peut contenir plusieurs actions. Chaque élément peut comporter une image. De plus, il est possible de créer un nouveau pass de transport et d’y associer des trajets afin de calculer les économies réalisées sur les frais de transport.
 
 ### Utilisation
 
@@ -149,7 +149,7 @@ Basado en [sa-token](https://sa-token.cc/index.html) para permisos por roles.
 El usuario predeterminado con el mayor nivel de privilegios es `superAdmin` y su contraseña es `123456`. Este usuario no puede ser modificado ni eliminado.
 
 **(3) Funciones**  
-Un viaje puede tener varias acciones. Cada entrada puede tener una imagen. Futuras versiones incluirán cálculo de presupuesto.
+Un viaje puede tener varias acciones. Cada entrada puede tener una imagen. Además, se admite la creación de nuevos pases de transporte y la vinculación de viajes a un pase específico para calcular el ahorro en los costos de transporte.
 
 ### Uso
 
@@ -181,7 +181,7 @@ Gracias a [irasutoya](https://www.irasutoya.com/) por los íconos.
 Пользователь с максимальными правами по умолчанию — `superAdmin`, пароль — `123456`. Этот пользователь не может быть изменён или удалён.
 
 **(3) Основной функционал**  
-Поездка (trip) содержит действия (action). Возможность загрузки изображений. Будущий функционал — расчёт бюджета.
+Поездка (trip) содержит действия (action). Кроме того, поддерживается создание новых проездных, с возможностью привязки поездок к определённому проездному для расчёта сэкономленных транспортных расходов.
 
 ### Использование
 Бэкэнд: Redis, MySQL, JDK17. Фронтэнд: Node.js, npm.
@@ -208,7 +208,7 @@ Gracias a [irasutoya](https://www.irasutoya.com/) por los íconos.
 اسم المستخدم ذو الصلاحيات الأعلى بشكل افتراضي هو `superAdmin` وكلمة المرور الخاصة به هي `123456`. لا يمكن تعديل هذا المستخدم أو حذفه.
 
 **(3) الميزات**  
-رحلة = trip، وكل رحلة تحتوي على عدة أنشطة = actions. يمكن رفع صورة لكل عنصر.
+رحلة = trip، وكل رحلة تحتوي على عدة أنشطة = actions. بالإضافة إلى ذلك، يتم دعم إنشاء تذاكر مرور جديدة ويمكن ربط الرحلات بتذكرة معينة لحساب التكاليف الموفرة في المواصلات.
 
 ### الاستخدام
 الخلفية: Redis، MySQL، JDK 17  
@@ -236,7 +236,7 @@ Gracias a [irasutoya](https://www.irasutoya.com/) por los íconos.
 デフォルトで最高権限を持つユーザーは `superAdmin` で、パスワードは `123456` です。このユーザーは変更・削除できません。
 
 **(3) 機能**  
-旅行（trip）には複数の行動（action）を含めることができ、各項目に画像を添付可能。将来的には予算管理機能も追加予定。
+旅行（trip）には複数の行動（action）を含めることができ、各項目に画像を添付可能。また、新しい交通パスの作成に対応しており、特定のパスに行程を紐付けることで、交通費の節約額を計算できます。
 
 ### 使い方
 バックエンド：Redis、MySQL、JDK17  
